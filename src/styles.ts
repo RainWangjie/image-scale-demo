@@ -1,14 +1,32 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 
-export const Block = styled.div<{ height?: number }>`
+const textAni = keyframes`
+  0%{
+    opacity:0
+  }
+  100%{
+    opacity:1
+  }
+`;
+
+interface IBlockProps {
+  isLarge: boolean;
+  isActive: boolean;
+  wrapHeight: number;
+  imgLeft: number;
+  imgTop: number;
+}
+
+export const Block = styled.div<Partial<IBlockProps>>`
   width: 280px;
-  height: ${(props) => (props.height ? props.height + 'px' : 'auto')};
+  height: ${(props) => (props.isLarge ? props.wrapHeight + 'px' : 'auto')};
   margin-bottom: 20px;
 
   .inner {
     position: relative;
-    padding-top: 130px;
-    background: #fff;
+    background: #fff0;
+    padding-top: 140px;
+    transition: background 0.3s; // 替代透明遮罩
   }
 
   .img-wrap {
@@ -18,18 +36,21 @@ export const Block = styled.div<{ height?: number }>`
     left: 20px;
     width: 240px;
     transform: translate(0, 0);
-    transition: all 0.3s;
     z-index: 1;
     img {
       width: 100%;
     }
   }
 
-  .text-wrap {
+  .gray-bg-wrap {
     position: relative;
     height: 260px;
     background: #dddd;
+    background-clip: content-box;
     margin-bottom: 20px;
+  }
+
+  .text-wrap {
     .title {
       font-weight: 600;
       font-size: 18px;
@@ -41,6 +62,17 @@ export const Block = styled.div<{ height?: number }>`
   }
 
   // 放大态
+  &.active {
+    .img-wrap {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 240px;
+      transform: ${(props) => `translate(${props.imgLeft}px, ${props.imgTop}px)`};
+      transition: all 0.3s;
+    }
+  }
+
   &.large {
     .inner {
       position: fixed;
@@ -48,21 +80,59 @@ export const Block = styled.div<{ height?: number }>`
       left: 0;
       right: 0;
       bottom: 0;
-      padding-top: 40%;
       z-index: 999;
+      padding-top: 40vh;
+      background: #fff;
     }
+
     .img-wrap {
+      cursor: default;
+      position: fixed;
       top: 50%;
       left: 50%;
+      width: 35%;
       transform: translate(100px, -50%);
     }
-    .text-wrap {
+
+    .gray-bg-wrap {
       height: 100%;
+    }
+
+    .text-wrap {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translateX(-300px);
+
       .title {
+        position: absolute;
+        font-size: 36px;
+        transform: translateY(-44px);
+        opacity: 0;
+        animation: ${textAni} 0.8s 0.3s;
+        animation-fill-mode: forwards;
       }
       .sub {
+        position: absolute;
+        font-size: 16px;
+        transform: translateY(12px);
+        opacity: 0;
+        animation: ${textAni} 0.8s 0.5s;
+        animation-fill-mode: forwards;
+      }
+
+      &:after {
+        content: '';
+        display: block;
+        width: 40px;
+        height: 8px;
+        background: #333;
+        opacity: 0;
+        animation: ${textAni} 0.8s 0.3s;
+        animation-fill-mode: forwards;
       }
     }
+
     .btn-close {
       cursor: pointer;
       position: absolute;
