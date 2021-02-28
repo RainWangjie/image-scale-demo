@@ -1,5 +1,6 @@
 import styled, { keyframes } from 'styled-components';
 
+// 文字动画
 const textAni = keyframes`
   0%{
     opacity:0
@@ -9,24 +10,47 @@ const textAni = keyframes`
   }
 `;
 
+// 左右交错布局
+export const Wrap = styled.div`
+  margin: 10px auto;
+  width: 700px;
+  display: flex;
+  justify-content: space-between;
+  & > div {
+    flex: 1;
+  }
+  & > div:last-child {
+    padding-top: 40px;
+  }
+`;
+
 interface IBlockProps {
   isLarge: boolean;
-  isActive: boolean;
+  isEnter: boolean;
+  isLeave: boolean;
   wrapHeight: number;
   imgLeft: number;
   imgTop: number;
+  bgWidth: number;
+  bgHeight: number;
+  bgTop: number;
+  bgLeft: number;
 }
 
+const aniTime = 1;
 export const Block = styled.div<Partial<IBlockProps>>`
   width: 280px;
-  height: ${(props) => (props.isLarge ? props.wrapHeight + 'px' : 'auto')};
+  height: ${(props) =>
+    props.isLarge || props.isEnter || props.isLeave
+      ? props.wrapHeight + 'px'
+      : 'auto'}; // 动画态占位
   margin-bottom: 20px;
 
   .inner {
     position: relative;
     background: #fff0;
     padding-top: 140px;
-    transition: background 0.3s; // 替代透明遮罩
+    transition: background ${aniTime}s; // 替代透明遮罩
   }
 
   .img-wrap {
@@ -46,7 +70,6 @@ export const Block = styled.div<Partial<IBlockProps>>`
     position: relative;
     height: 260px;
     background: #dddd;
-    background-clip: content-box;
     margin-bottom: 20px;
   }
 
@@ -61,18 +84,17 @@ export const Block = styled.div<Partial<IBlockProps>>`
     }
   }
 
-  // 放大态
-  &.active {
-    .img-wrap {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      width: 240px;
-      transform: ${(props) => `translate(${props.imgLeft}px, ${props.imgTop}px)`};
-      transition: all 0.3s;
+  // 过渡动画
+  &.large:not(.enter),
+  &.leave {
+    .img-wrap,
+    .gray-bg-wrap {
+      transition: all ${aniTime}s;
     }
   }
 
+  &.enter,
+  &.leave,
   &.large {
     .inner {
       position: fixed;
@@ -81,13 +103,17 @@ export const Block = styled.div<Partial<IBlockProps>>`
       right: 0;
       bottom: 0;
       z-index: 999;
-      padding-top: 40vh;
+    }
+  }
+  // 放大态
+  &.large {
+    .inner {
       background: #fff;
     }
 
     .img-wrap {
       cursor: default;
-      position: fixed;
+      position: absolute;
       top: 50%;
       left: 50%;
       width: 35%;
@@ -95,7 +121,11 @@ export const Block = styled.div<Partial<IBlockProps>>`
     }
 
     .gray-bg-wrap {
-      height: 100%;
+      position: absolute;
+      width: 100%;
+      height: 60%;
+      top: 40%;
+      left: 0;
     }
 
     .text-wrap {
@@ -109,7 +139,7 @@ export const Block = styled.div<Partial<IBlockProps>>`
         font-size: 36px;
         transform: translateY(-44px);
         opacity: 0;
-        animation: ${textAni} 0.8s 0.3s;
+        animation: ${textAni} 0.8s ${aniTime}s;
         animation-fill-mode: forwards;
       }
       .sub {
@@ -117,7 +147,7 @@ export const Block = styled.div<Partial<IBlockProps>>`
         font-size: 16px;
         transform: translateY(12px);
         opacity: 0;
-        animation: ${textAni} 0.8s 0.5s;
+        animation: ${textAni} 0.8s ${aniTime * 1.3}s;
         animation-fill-mode: forwards;
       }
 
@@ -128,7 +158,7 @@ export const Block = styled.div<Partial<IBlockProps>>`
         height: 8px;
         background: #333;
         opacity: 0;
-        animation: ${textAni} 0.8s 0.3s;
+        animation: ${textAni} 0.8s ${aniTime}s;
         animation-fill-mode: forwards;
       }
     }
@@ -157,6 +187,28 @@ export const Block = styled.div<Partial<IBlockProps>>`
       &:after {
         transform: translate(-50%, -50%) rotate(-45deg);
       }
+    }
+  }
+
+  // 第一帧状态/最后一帧状态
+  &.large.enter,
+  &.leave {
+    .img-wrap {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 240px;
+      transform: ${(props) => `translate(${props.imgLeft}px, ${props.imgTop}px)`};
+    }
+    .gray-bg-wrap {
+      position: absolute;
+      width: ${(props) => props.bgWidth}px;
+      height: ${(props) => props.bgHeight}px;
+      top: ${(props) => props.bgTop}px;
+      left: ${(props) => props.bgLeft}px;
+    }
+    .text-wrap {
+      opacity: 0;
     }
   }
 `;
